@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<head>
+	<title>how to encrypt</title>
+	<meta charset="utf-8" />
+	<style type="text/css">
+.data_parent .data_paste {
+	display: none;
+}
+.data_parent .data_file {
+	display: none;
+}
+.data_type_file:checked ~ .data_file {
+	display: block;
+}
+.data_type_paste:checked ~ .data_paste {
+	display: block;
+}
+.result_parent .result_copy {
+	display: none;
+}
+.result_parent .result_save {
+	display: none;
+}
+.result_type_copy:checked ~ .result_copy {
+	display: block;
+}
+.result_type_save:checked ~ .result_save {
+	display: block;
+}
+textarea {
+	width: 100%;
+	height: 50em;
+}
+input[type=text] {
+	width: 50em;
+}
+	</style>
+</head>
+<body>
+	<p>0. Make sure this page hasn't been tampered with! It is recommended to save it for offline use. <strong>The author is under the jurisdiction of Australia and may have been ordered to include a backdoor in this code.</strong> Press F12, select the Network tab and refresh the page. The only network activity you should apart from loading the page itself is loading OpenPGP.js from https://cdnjs.cloudflare.com. Leave the tab open to confirm that any data you enter never gets sent anywhere.</p>
+
+	<p>1. Paste the PGP public key of the person you're sending to. It should start with -----BEGIN PGP PUBLIC KEY BLOCK----- and end with -----END PGP PUBLIC KEY BLOCK-----.</p>
+	<textarea id="pubkey"></textarea>
+
+	<p>2. Click "Check" to display details of the public key. If you want to change the public key after clicking "Encrypt", refresh the page.</p>
+	<button id="check">Check</button>
+
+	<p>3. Confirm the details of the public key via a communication method where you can be sure you are talking to who you think you are. It doesn't matter if an adversary can eavesdrop, as long as they can't modify the communication.</p>
+	<p>
+	User ID: <input type="text" id="userid" readonly="readonly" value="" autocomplete="off" />
+	<br />Key ID: <input type="text" id="keyid" readonly="readonly" value="" autocomplete="off" />
+	<br />Fingerprint: <input type="text" id="fingerprint" readonly="readonly" value="" autocomplete="off" />
+	</p>
+
+	<p>4. Paste the data you want to send or select the file to encrypt.</p>
+	<p class="data_parent">
+	<input type="radio" name="data_type" class="data_type_paste" id="data_type_paste" autocomplete="off" /><label for="data_type_paste"> Paste</label>
+	<input type="radio" name="data_type" class="data_type_file" id="data_type_file" autocomplete="off" /><label for="data_type_file"> File</label>
+	<textarea class="data_paste" id="data_paste"></textarea>
+	<input type="file" class="data_file" id="data_file" />
+	</p>
+
+	<p>5. Click "Encrypt". If you want to change the data after clicking encrypt, refresh the page.</p>
+	<p>
+	<button id="encrypt" disabled="disabled">Encrypt</button>
+
+	<p>6. Select whether you want to copy the encrypted data from a textbox or save to a file.</p>
+	<p class="result_parent">
+	<input type="radio" name="result_type" class="result_type_copy" id="result_type_copy" autocomplete="off" disabled="disabled" /><label for="result_type_copy"> Copy</label>
+	<input type="radio" name="result_type" class="result_type_save" id="result_type_save" autocomplete="off" disabled="disabled" /><label for="result_type_save"> Save</label>
+	<textarea class="result_copy" id="result_copy" readonly="readonly"></textarea>
+	<a class="result_save" id="result_save">Save</button>
+	</p>
+
+	<p>7. Send encrypted data to recipient.</p>
+
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.5.3/compat/openpgp.min.js"></script>
+	<script type="text/javascript">
+
+var pubkeyEl = document.getElementById('pubkey');
+var checkEl = document.getElementById('check');
+var useridEl = document.getElementById('userid');
+var keyidEl = document.getElementById('keyid');
+var fingerprintEl = document.getElementById('fingerprint');
+var dataTypePasteEl = document.getElementById('data_type_paste');
+var dataTypeFileEl = document.getElementById('data_type_file');
+var dataPasteEl = document.getElementById('data_paste');
+var dataFileEl = document.getElementById('data_file');
+var encryptEl = document.getElementById('encrypt');
+var resultTypeCopyEl = document.getElementById('result_type_copy');
+var resultTypeSaveEl = document.getElementById('result_type_save');
+var resultCopyEl = document.getElementById('result_copy');
+var resultSaveEl = document.getElementById('result_save');
+
+var pubkey;
+var plaintext;
+var ciphertext;
+var binaryCiphertext;
+
+function byteToHex(b) {
+	return ('0' + b.toString(16)).slice(-2);
+}
+
+function bytestringToHex(bs) {
+	return bs.map(byteToHex).join('');
+}
+
+function disablePubkey(disabled) {
+	pubkeyEl.readOnly = disabled;
+	checkEl.disabled = disabled;
+}
+
+function onCheckClick() {
+	disablePubkey(true);
+	openpgp.key.readArmored(pubkeyEl.value).then(function (a) {
+		pubkey = a.keys[0]; // output
+		useridEl.value = pubkey.users[0].userId.userid;
+		keyidEl.value = pubkey.keyPacket.keyid.toHex().toUpperCase();
+		fingerprintEl.value = bytestringToHex(Array.from(pubkey.keyPacket.fingerprint)).toUpperCase();
+		encryptEl.disabled = false;
+		encryptEl.onclick = onEncryptClick;
+	}).catch(function(e) {
+		alert('Invalid public key' + e);
+		disablePubkey(false);
+	});
+}
+
+function dataToEncrypt() {
+	return new Promise(function(resolve, reject) {
+		if (dataTypePasteEl.checked) {
+			resolve(openpgp.message.fromText(dataPasteEl.value));
+			return;
+		}
+		if (dataTypeFileEl.checked && dataFileEl.files[0]) {
+			var r = new FileReader();
+			r.onloadend = function() { resolve(openpgp.message.fromBinary(new Uint8Array(r.result))); }
+			r.readAsArrayBuffer(dataFileEl.files[0]);
+			return;
+		}
+		resolve(null);
+	});
+}
+
+function disableData(disabled) {
+	dataTypePasteEl.disabled = disabled;
+	dataTypeFileEl.disabled = disabled;
+	dataPasteEl.readonly = disabled;
+	dataFileEl.disabled = disabled;
+	encryptEl.disabled = disabled;
+}
+
+
+function onEncryptClick() {
+	disableData(true);
+	dataToEncrypt().then(function(data) {
+		if (!data) {
+			alert('Add some data to encrypt');
+			disableData(false);
+			return;
+		}
+
+		plaintext = data; // output
+
+		openpgp.encrypt({
+			message: plaintext,
+			publicKeys: [pubkey],
+			armor: true,
+		}).then(function(result) {
+			ciphertext = result.data; // output
+			resultCopyEl.value = ciphertext;
+			resultTypeCopyEl.disabled = false;
+		});
+
+		openpgp.encrypt({
+			message: plaintext,
+			publicKeys: [pubkey],
+			armor: false,
+		}).then(function(result) {
+			binaryCiphertext = result.message.packets.write(); // output
+			var blob = new Blob([binaryCiphertext]);
+			resultSaveEl.href = window.URL.createObjectURL(blob);
+			var downloadFilename = 'encrypted.gpg';
+			if (dataFileEl.files[0]) {
+				downloadFilename = dataFileEl.files[0].name + '.gpg';
+			}
+			resultSaveEl.download = downloadFilename;
+			resultTypeSaveEl.disabled = false;
+		});
+	});
+}
+
+function onSaveClick() {
+}
+
+checkEl.onclick = onCheckClick;
+
+	</script>
+</body>
+</html>
