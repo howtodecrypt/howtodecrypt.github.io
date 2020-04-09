@@ -43,12 +43,11 @@ input[type=text] {
 	<p>1. Paste the PGP public key of the person you're sending to. It should start with -----BEGIN PGP PUBLIC KEY BLOCK----- and end with -----END PGP PUBLIC KEY BLOCK-----.</p>
 	<textarea id="pubkey"></textarea>
 
-	<p>2. Click "Check" to display details of the public key. If you want to change the public key after clicking "Encrypt", refresh the page.</p>
+	<p>2. Click "Check" to display details of the public key. If you want to change the public key after clicking "Check", refresh the page.</p>
 	<button id="check">Check</button>
 
 	<p>3. Confirm the details of the public key via a communication method where you can be sure you are talking to who you think you are. It doesn't matter if an adversary can eavesdrop, as long as they can't modify the communication.</p>
 	<p>
-	User ID: <input type="text" id="userid" readonly="readonly" value="" autocomplete="off" />
 	<br />Key ID: <input type="text" id="keyid" readonly="readonly" value="" autocomplete="off" />
 	<br />Fingerprint: <input type="text" id="fingerprint" readonly="readonly" value="" autocomplete="off" />
 	</p>
@@ -80,7 +79,6 @@ input[type=text] {
 
 var pubkeyEl = document.getElementById('pubkey');
 var checkEl = document.getElementById('check');
-var useridEl = document.getElementById('userid');
 var keyidEl = document.getElementById('keyid');
 var fingerprintEl = document.getElementById('fingerprint');
 var dataTypePasteEl = document.getElementById('data_type_paste');
@@ -115,7 +113,6 @@ function onCheckClick() {
 	disablePubkey(true);
 	openpgp.key.readArmored(pubkeyEl.value).then(function (a) {
 		pubkey = a.keys[0]; // output
-		useridEl.value = pubkey.users[0].userId.userid;
 		keyidEl.value = pubkey.keyPacket.keyid.toHex().toUpperCase();
 		fingerprintEl.value = bytestringToHex(Array.from(pubkey.keyPacket.fingerprint)).toUpperCase();
 		encryptEl.disabled = false;
