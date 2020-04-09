@@ -69,12 +69,12 @@ input[type=text] {
 	<input type="radio" name="result_type" class="result_type_copy" id="result_type_copy" autocomplete="off" disabled="disabled" /><label for="result_type_copy"> Copy</label>
 	<input type="radio" name="result_type" class="result_type_save" id="result_type_save" autocomplete="off" disabled="disabled" /><label for="result_type_save"> Save</label>
 	<textarea class="result_copy" id="result_copy" readonly="readonly"></textarea>
-	<a class="result_save" id="result_save">Save</button>
+	<a class="result_save" id="result_save">Save</a>
 	</p>
 
 	<p>7. Send encrypted data to recipient.</p>
 
-	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.5.3/compat/openpgp.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.6.2/openpgp.min.js" integrity="sha256-txcrHjb7Yt1zrebRnGkk5OwDkoBrvJTjvJx5b7qBtWc=" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 
 var pubkeyEl = document.getElementById('pubkey');
