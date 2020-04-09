@@ -1,8 +1,9 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
 	<title>how to encrypt</title>
 	<meta charset="utf-8" />
-	<style type="text/css">
+	<style>
 .data_parent .data_paste {
 	display: none;
 }
@@ -54,8 +55,8 @@ input[type=text] {
 
 	<p>4. Paste the data you want to send or select the file to encrypt.</p>
 	<p class="data_parent">
-	<input type="radio" name="data_type" class="data_type_paste" id="data_type_paste" autocomplete="off" /><label for="data_type_paste"> Paste</label>
-	<input type="radio" name="data_type" class="data_type_file" id="data_type_file" autocomplete="off" /><label for="data_type_file"> File</label>
+	<input type="radio" name="data_type" class="data_type_paste" id="data_type_paste" /><label for="data_type_paste"> Paste</label>
+	<input type="radio" name="data_type" class="data_type_file" id="data_type_file" /><label for="data_type_file"> File</label>
 	<textarea class="data_paste" id="data_paste"></textarea>
 	<input type="file" class="data_file" id="data_file" />
 	</p>
@@ -66,8 +67,8 @@ input[type=text] {
 
 	<p>6. Select whether you want to copy the encrypted data from a textbox or save to a file.</p>
 	<p class="result_parent">
-	<input type="radio" name="result_type" class="result_type_copy" id="result_type_copy" autocomplete="off" disabled="disabled" /><label for="result_type_copy"> Copy</label>
-	<input type="radio" name="result_type" class="result_type_save" id="result_type_save" autocomplete="off" disabled="disabled" /><label for="result_type_save"> Save</label>
+	<input type="radio" name="result_type" class="result_type_copy" id="result_type_copy" disabled="disabled" /><label for="result_type_copy"> Copy</label>
+	<input type="radio" name="result_type" class="result_type_save" id="result_type_save" disabled="disabled" /><label for="result_type_save"> Save</label>
 	<textarea class="result_copy" id="result_copy" readonly="readonly"></textarea>
 	<a class="result_save" id="result_save">Save</a>
 	</p>
@@ -75,7 +76,7 @@ input[type=text] {
 	<p>7. Send encrypted data to recipient.</p>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/openpgp/4.6.2/openpgp.min.js" integrity="sha256-txcrHjb7Yt1zrebRnGkk5OwDkoBrvJTjvJx5b7qBtWc=" crossorigin="anonymous"></script>
-	<script type="text/javascript">
+	<script>
 
 var pubkeyEl = document.getElementById('pubkey');
 var checkEl = document.getElementById('check');
